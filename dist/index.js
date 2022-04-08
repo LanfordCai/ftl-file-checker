@@ -8507,11 +8507,11 @@ async function run() {
     }
     const files = filesResp.data
 
-    if (labels.some((label) => { label.name == "NewToken" })) {
+    if (labels.some((label) => { return label.name == "NewToken" })) {
       core.info(`checkNewTokenFiles`)
       validateFiles(files)
       checkNewTokenFiles(files)
-    } else if (labels.some((label) => { label.name == "UpdateToken" })) {
+    } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
       core.info(`checkUpdateTokenFiles`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
