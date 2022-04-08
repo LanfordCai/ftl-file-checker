@@ -8520,9 +8520,11 @@ function checkNewTokenFiles(files) {
   let hasTokenJson = false
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
+    core.info(`status: ${file.status}`)
     if (file.status != "added") {
       throw new Error("only add new file is allowed in a NewToken PR")
     }
+    core.info(`ready to split`)
     const [registryDir, tokenSymbol, filename] = file.filename.split("/") 
     core.info(`filename: ${filename} full_filename: ${file.filename}`)
     if (!VALID_FILES.includes(filename)) {
