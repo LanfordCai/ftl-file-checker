@@ -8493,8 +8493,12 @@ async function run() {
     const repo = github.context.repo.repo
     const prNumber = github.context.payload.pull_request.number
     const client = getOctokit()
-    const files = pullFiles(client, owner, repo, prNumber)
+    const resp = await pullFiles(client, owner, repo, prNumber)
+    if (resp.status != 200) {
+      throw new Error("pull files failed")
+    }
 
+    const files = resp.data
     const checkNewToken = core.getInput("checkNewToken") || false
     core.info(`checkNewToken: ${checkNewToken}`)
     const checkUpdateToken = core.getInput("checkUpdateToken") || false
