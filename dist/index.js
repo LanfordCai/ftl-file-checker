@@ -8496,13 +8496,18 @@ async function run() {
     const files = pullFiles(client, owner, repo, prNumber)
 
     const checkNewToken = core.getInput("checkNewToken") || false
+    core.info(`checkNewToken: ${checkNewToken}`)
     const checkUpdateToken = core.getInput("checkUpdateToken") || false
+    core.info(`checkUpdateToken: ${checkUpdateToken}`)
 
     validateFiles(files)
+    core.info(`file validated`)
 
     if (checkNewToken) {
+      core.info(`checkNewTokenFiles`)
       checkNewTokenFiles(files)
     } else if (checkUpdateToken) {
+      core.info(`checkUpdateTokenFiles`)
       checkUpdateTokenFiles(files)
     }
   } catch (error) {
