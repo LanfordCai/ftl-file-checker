@@ -8499,7 +8499,6 @@ async function run() {
       throw new Error("get labels failed")
     }
     const labels = labelsResp.data
-    core.info(labels.length)
 
     const filesResp = await pullFiles(client, owner, repo, prNumber)
     if (filesResp.status != 200) {
@@ -8508,15 +8507,15 @@ async function run() {
     const files = filesResp.data
 
     if (labels.some((label) => { return label.name == "NewToken" })) {
-      core.info(`checkNewTokenFiles`)
+      core.info(`checkNewToken`)
       validateFiles(files)
       checkNewTokenFiles(files)
     } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
-      core.info(`checkUpdateTokenFiles`)
+      core.info(`checkUpdateToken`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
     } else {
-      core.info(`label is: ${labels[0].name}`)
+      core.info(`Unrelated`)
     }
 
   } catch (error) {
@@ -8527,16 +8526,12 @@ async function run() {
 function checkNewTokenFiles(files) {
   let hasLogo = false
   let hasTokenJson = false
-  core.info(`ready to loop`)
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
-    core.info(`status: ${file.status}`)
     if (file.status != "added") {
       throw new Error("only add new file is allowed in a NewToken PR")
     }
-    core.info(`ready to split`)
     const [registryDir, tokenSymbol, filename] = file.filename.split("/") 
-    core.info(`filename: ${filename} full_filename: ${file.filename}`)
     if (!VALID_FILES.includes(filename)) {
       throw new Error("contains invalid file")
     }
