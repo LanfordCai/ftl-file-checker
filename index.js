@@ -31,7 +31,7 @@ async function run() {
     core.info(`checkUpdateToken: ${checkUpdateToken}`)
 
     validateFiles(files)
-    core.info(`file validated`)
+    core.info(`file validated: ${files.length}`)
 
     if (checkNewToken) {
       core.info(`checkNewTokenFiles`)
@@ -48,6 +48,7 @@ async function run() {
 function checkNewTokenFiles(files) {
   let hasLogo = false
   let hasTokenJson = false
+  core.info(`ready to loop`)
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
     core.info(`status: ${file.status}`)
