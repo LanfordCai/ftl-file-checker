@@ -8493,27 +8493,30 @@ async function run() {
     const repo = github.context.repo.repo
     const prNumber = github.context.payload.pull_request.number
     const client = getOctokit()
-    const resp = await pullFiles(client, owner, repo, prNumber)
-    if (resp.status != 200) {
+
+    const labelsResp = await getLabels(client, owner, repo, prNumber)
+    if (labelsResp.status != 200) {
+      throw new Error("get labels failed")
+    }
+    const labels = labelsResp.data
+    core.info(labels)
+
+    const filesResp = await pullFiles(client, owner, repo, prNumber)
+    if (filesResp.status != 200) {
       throw new Error("pull files failed")
     }
+    const files = filesResp.data
 
-    const files = resp.data
-    const checkNewToken = core.getInput("checkNewToken") || false
-    core.info(`checkNewToken: ${checkNewToken}`)
-    const checkUpdateToken = core.getInput("checkUpdateToken") || false
-    core.info(`checkUpdateToken: ${checkUpdateToken}`)
-
-    validateFiles(files)
-    core.info(`file validated: ${files.length}`)
-
-    if (checkNewToken) {
+    if (labels.some((label) => { label.name == "NewToken" })) {
       core.info(`checkNewTokenFiles`)
+      validateFiles(files)
       checkNewTokenFiles(files)
-    } else if (checkUpdateToken) {
+    } else if (labels.some((label) => { label.name == "UpdateToken" })) {
       core.info(`checkUpdateTokenFiles`)
+      validateFiles(files)
       checkUpdateTokenFiles(files)
     }
+
   } catch (error) {
     core.setFailed(error.message);
   }
@@ -8589,6 +8592,14 @@ async function pullFiles(client, owner, repo, prNumber) {
     owner: owner,
     repo: repo,
     pull_number: prNumber,
+  })
+}
+
+async function getLabels(client, owner, repo, prNumber) {
+  return await client.rest.issues.listLabelsOnIssue({
+    owner: owner,
+    repo: repo,
+    issue_number: prNumber
   })
 }
 
