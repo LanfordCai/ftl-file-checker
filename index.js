@@ -49,6 +49,7 @@ function checkNewTokenFiles(files) {
       throw new Error("only add new file is allowed in a NewToken PR")
     }
     const [registryDir, tokenSymbol, filename] = file.filename.split("/") 
+    core.info(`filename: ${filename} full_filename: ${file.filename}`)
     if (!VALID_FILES.includes(filename)) {
       throw new Error("contains invalid file")
     }
