@@ -45,6 +45,8 @@ async function run() {
       core.info(`checkUpdateTokenFiles`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
+    } else {
+      core.info(`label is: ${labels[0].name}`)
     }
 
   } catch (error) {
