@@ -29,7 +29,7 @@ async function run() {
       throw new Error("get labels failed")
     }
     const labels = labelsResp.data
-    core.info(labels)
+    core.info(labels.length)
 
     const filesResp = await pullFiles(client, owner, repo, prNumber)
     if (filesResp.status != 200) {
