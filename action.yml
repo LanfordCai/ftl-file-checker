@@ -1,14 +1,5 @@
 name: 'ftl-file-checker'
 description: 'validate flow-token-list pr files'
-inputs:
-  checkNewToken:  # id of input
-    description: 'should check NewToken'
-    required: false
-    default: false
-  checkUpdateToken:  # id of input
-    description: 'should check UpdateToken'
-    required: false
-    default: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
