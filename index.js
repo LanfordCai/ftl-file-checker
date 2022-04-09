@@ -158,7 +158,7 @@ async function validateImages(client, owner, repo, files) {
       throw new Error("fetch image failed")
     }
     if (resp.data.size > imageMaxSize) {
-      const msg = `The size of ${file.filename} is ${resp.data.size}, exceed the max size ${imageMaxSize}`
+      const msg = `The size of ${file.filename} is ${resp.data.size} bytes, exceed the max size ${imageMaxSize} bytes`
       core.info(`\u001b[38;2;255;0;0m${msg}`)
       throw new Error(msg)
     }

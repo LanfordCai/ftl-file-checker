@@ -12,7 +12,7 @@ inputs:
   IMAGE_MAX_SIZE:
     description: 'allowed max image size'
     required: true
-    default: 100
+    default: 20000
 runs:
   using: 'node16'
   main: 'dist/index.js'
