@@ -135,6 +135,8 @@ async function pullFiles(client, owner, repo, prNumber) {
 async function validateJsonFiles(client, owner, repo, files) {
   core.info("fetch json schema")
   const resp = await fetchJsonSchema(client, owner, repo)
+  core.info(`${resp.status}`)
+  core.info(`${resp.data}`)
   if (resp != 200) {
     throw new Error("fetch json schema failed")
   }
