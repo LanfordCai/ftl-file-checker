@@ -172,7 +172,7 @@ async function validateJsonFiles(client, owner, repo, files, symbol) {
 }
 
 async function fetchJsonSchema(client, owner, repo) {
-  const contentPath = core.getInput("tokenJsonSchemaPath") 
+  const contentPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
   console.log(`content path ${contentPath}`)
 
   return await client.rest.repos.getContent({
