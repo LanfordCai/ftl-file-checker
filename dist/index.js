@@ -15883,7 +15883,7 @@ async function validateJsonFiles(client, owner, repo, files) {
   const resp = await fetchJsonSchema(client, owner, repo)
   core.info(`${resp.status}`)
   core.info(`${resp.data}`)
-  if (resp != 200) {
+  if (resp.status != 200) {
     throw new Error("fetch json schema failed")
   }
   const schema = JSON.parse(resp.data)
