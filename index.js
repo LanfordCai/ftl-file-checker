@@ -136,8 +136,6 @@ async function pullFiles(client, owner, repo, prNumber) {
 async function validateJsonFiles(client, owner, repo, files) {
   core.info("fetch json schema")
   const resp = await fetchJsonSchema(client, owner, repo)
-  core.info(`${resp.status}`)
-  core.info(`${resp.data}`)
   if (resp.status != 200) {
     throw new Error("fetch json schema failed")
   }
@@ -160,7 +158,10 @@ async function validateJsonFiles(client, owner, repo, files) {
     const validate = ajv.compile(schema)
     const valid = validate(data)
     if (!valid) {
-      core.info(`${file.filename} is invalid: ${validate.errors}`)
+      core.info(`${file.filename} is invalid`)
+      validate.errors.forEach((err) => {
+        core.info(err.message)
+      })
     }
   }
 }
