@@ -156,10 +156,12 @@ async function validateJsonFiles(client, owner, repo, files) {
     const validate = ajv.compile(schema)
     const valid = validate(data)
     if (!valid) {
+      core.info(`--------------------------------------------------------`)
       core.info(`\u001b[38;2;255;0;0m${file.filename} is invalid`)
       validate.errors.forEach((err) => {
         core.info(`\u001b[38;2;255;0;0m${err.message}`)
       })
+      core.info(`--------------------------------------------------------`)
     }
   }
 }
