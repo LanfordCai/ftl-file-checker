@@ -15794,18 +15794,18 @@ async function run() {
       validateFiles(files)
       checkNewTokenFiles(files)
       core.info(`start validate json files`)
-      validateJsonFiles(client, owner, repo, files, symbol)
+      await validateJsonFiles(client, owner, repo, files, symbol)
       if (shouldValidateImages) {
-        validateImages(client, owner, repo, files)
+        await validateImages(client, owner, repo, files)
       }
     } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
       core.info(`checkUpdateToken`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
       core.info(`start validate json files`)
-      validateJsonFiles(client, owner, repo, files, symbol)
+      await validateJsonFiles(client, owner, repo, files, symbol)
       if (shouldValidateImages) {
-        validateImages(client, owner, repo, files)
+        await validateImages(client, owner, repo, files)
       }
     } else {
       core.info(`Unrelated`)
