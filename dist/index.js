@@ -15764,6 +15764,7 @@ const REQUIRED_FILES = (/* unused pure expression or super */ null && ([
 ]))
 
 const ajv = new Ajv({allErrors: true})
+let symbol = null
 
 run()
 
@@ -15791,13 +15792,13 @@ async function run() {
       validateFiles(files)
       checkNewTokenFiles(files)
       core.info(`start validate json files`)
-      validateJsonFiles(client, owner, repo, files)
+      validateJsonFiles(client, owner, repo, files, symbol)
     } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
       core.info(`checkUpdateToken`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
       core.info(`start validate json files`)
-      validateJsonFiles(client, owner, repo, files)
+      validateJsonFiles(client, owner, repo, files, symbol)
     } else {
       core.info(`Unrelated`)
     }
@@ -15846,7 +15847,6 @@ function checkUpdateTokenFiles(files) {
 }
 
 function validateFiles(files) {
-  let symbol = null
   if (files.length > 5 || files.length == 0) { 
     throw new Error("invalid files count") 
   }
@@ -15879,7 +15879,7 @@ async function pullFiles(client, owner, repo, prNumber) {
   })
 }
 
-async function validateJsonFiles(client, owner, repo, files) {
+async function validateJsonFiles(client, owner, repo, files, symbol) {
   const resp = await fetchJsonSchema(client, owner, repo)
   if (resp.status != 200) {
     throw new Error("fetch json schema failed")
@@ -15899,6 +15899,10 @@ async function validateJsonFiles(client, owner, repo, files) {
     }
 
     const data = JSON.parse(resp.data)
+    if (data.symbol != symbol) {
+      throw new Error("symbols in path and token.json are mismatch")
+    }
+
     const validate = ajv.compile(schema)
     const valid = validate(data)
     if (!valid) {
@@ -15908,6 +15912,7 @@ async function validateJsonFiles(client, owner, repo, files) {
         core.info(`\u001b[38;2;255;0;0m${err.message}`)
       })
       core.info(`--------------------------------------------------------`)
+      throw new Error("detect invalid json file")
     }
   }
 }
