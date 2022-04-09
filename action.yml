@@ -1,5 +1,9 @@
 name: 'ftl-file-checker'
 description: 'validate flow-token-list pr files'
+with:
+  TOKEN_JSON_SCHEMA_PATH:
+    description: 'json schema of token.json'
+    default: 'src/schemas/token.schema.json'
 runs:
   using: 'node16'
   main: 'dist/index.js'

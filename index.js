@@ -172,11 +172,8 @@ async function validateJsonFiles(client, owner, repo, files, symbol) {
 }
 
 async function fetchJsonSchema(client, owner, repo) {
-  let contentPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
+  const contentPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
   console.log(`content path ${contentPath}`)
-  if (contentPath == "") {
-    contentPath = "src/schemas/token.schema.json"
-  }
 
   return await client.rest.repos.getContent({
     mediaType: {
