@@ -15900,7 +15900,7 @@ async function validateJsonFiles(client, owner, repo, files, symbol) {
 
     const data = JSON.parse(resp.data)
     if (data.symbol != symbol) {
-      throw new Error("symbols in path and token.json are mismatch")
+      throw new Error(`symbols in path and ${file.filename} are mismatch`)
     }
 
     const validate = ajv.compile(schema)
