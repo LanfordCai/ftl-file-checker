@@ -15748,6 +15748,7 @@ const core = __nccwpck_require__(2186)
 const github = __nccwpck_require__(5438)
 const path = __nccwpck_require__(5622)
 const Ajv = __nccwpck_require__(4941)
+const ajv = new Ajv({allErrors: true})
 
 const REGISTRY_DIR = "token-registry"
 const VALID_FILES = [
@@ -15758,12 +15759,6 @@ const VALID_FILES = [
   "testnet.token.json"
 ]
 
-const REQUIRED_FILES = (/* unused pure expression or super */ null && ([
-  "logo.png", 
-  "token.json"
-]))
-
-const ajv = new Ajv({allErrors: true})
 let symbol = null
 
 run()
@@ -15824,7 +15819,7 @@ function checkNewTokenFiles(files) {
     if (file.status != "added") {
       throw new Error("only add new file is allowed in a NewToken PR")
     }
-    const [registryDir, tokenSymbol, filename] = file.filename.split("/") 
+    const [,, filename] = file.filename.split("/") 
     if (!VALID_FILES.includes(filename)) {
       throw new Error("contains invalid file")
     }
@@ -15844,7 +15839,7 @@ function checkNewTokenFiles(files) {
 function checkUpdateTokenFiles(files) {
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
-    const [registryDir, tokenSymbol, filename] = file.filename.split("/") 
+    const [,, filename] = file.filename.split("/") 
     if (!VALID_FILES.includes(filename)) {
       throw new Error("contains invalid file")
     } 
@@ -15860,7 +15855,7 @@ function validateFiles(files) {
   }
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
-    const [registryDir, tokenSymbol, filename] = file.filename.split("/")
+    const [registryDir, tokenSymbol,] = file.filename.split("/")
     if (tokenSymbol != tokenSymbol.toUpperCase()) {
       throw new Error(`token symbol should be uppercased, but it is ${tokenSymbol}`)
     }
@@ -15964,7 +15959,7 @@ async function fetchJsonSchema(client, owner, repo) {
 }
 
 async function getFileContent(client, owner, repo, file, format) {
-  const [p, ref] = file.contents_url.split("ref=")
+  const [, ref] = file.contents_url.split("ref=")
   return await client.rest.repos.getContent({
     mediaType: {
       format: [format],
@@ -15986,7 +15981,7 @@ async function getLabels(client, owner, repo, prNumber) {
 
 function getOctokit() {
   const gh_token = process.env.GITHUB_TOKEN
-  const octokit = github.getOctokit(token=gh_token)
+  const octokit = github.getOctokit({token: gh_token})
   return octokit
 }
 })();
