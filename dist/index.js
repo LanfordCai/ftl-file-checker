@@ -15746,6 +15746,7 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(2186)
 const github = __nccwpck_require__(5438)
+const path = __nccwpck_require__(5622)
 const Ajv = __nccwpck_require__(4941)
 
 const REGISTRY_DIR = "token-registry"
