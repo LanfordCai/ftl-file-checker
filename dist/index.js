@@ -15991,7 +15991,7 @@ async function getLabels(client, owner, repo, prNumber) {
 
 function getOctokit() {
   const gh_token = process.env.GITHUB_TOKEN
-  const octokit = github.getOctokit({token: gh_token})
+  const octokit = github.getOctokit(token=gh_token)
   return octokit
 }
 })();
