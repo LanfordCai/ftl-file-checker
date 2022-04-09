@@ -1,5 +1,6 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
+const Ajv = require("ajv")
 
 const REGISTRY_DIR = "token-registry"
 const VALID_FILES = [
@@ -14,6 +15,8 @@ const REQUIRED_FILES = [
   "logo.png", 
   "token.json"
 ]
+
+const ajv = new Ajv({allErrors: true})
 
 run()
 
@@ -40,10 +43,14 @@ async function run() {
       core.info(`checkNewToken`)
       validateFiles(files)
       checkNewTokenFiles(files)
+      core.info(`start validate json files`)
+      validateJsonFiles(client, owner, repo, files)
     } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
       core.info(`checkUpdateToken`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
+      core.info(`start validate json files`)
+      validateJsonFiles(client, owner, repo, files)
     } else {
       core.info(`Unrelated`)
     }
@@ -124,6 +131,61 @@ async function pullFiles(client, owner, repo, prNumber) {
     pull_number: prNumber,
   })
 }
+
+async function validateJsonFiles(client, owner, repo, files) {
+  core.info("fetch json schema")
+  const resp = await fetchJsonSchema(client, owner, repo)
+  if (resp != 200) {
+    throw new Error("fetch json schema failed")
+  }
+  const schema = JSON.parse(resp.data)
+
+  core.info("parse files")
+  for (var i = 0; i < files.length; i++) {
+    const file = files[i]
+    if (path.extname(file.filename) != ".json") {
+      continue
+    }
+  
+    core.info(`fetch file ${file.filename}`)
+    const resp = await fetchJsonFile(client, owner, repo, file)
+    if (resp.status != 200) {
+      throw new Error("fetch json file failed")
+    }
+
+    const data = JSON.parse(resp.data)
+    const validate = ajv.compile(schema)
+    const valid = validate(data)
+    if (!valid) {
+      core.info(`${file.filename} is invalid: ${validate.errors}`)
+    }
+  }
+}
+
+async function fetchJsonSchema(client, owner, repo) {
+  return await client.rest.repos.getContent({
+    mediaType: {
+      format: ["raw"],
+    },
+    owner: owner, 
+    repo: repo,
+    path: "src/schemas/token.schema.json",
+  })
+}
+
+async function fetchJsonFile(client, owner, repo, file) {
+  const [p, ref] = file.contents_url.split("ref=")
+  return await client.rest.repos.getContent({
+    mediaType: {
+      format: ["raw"],
+    },
+    owner: owner, 
+    repo: repo,
+    path: file.filename,
+    ref: ref
+  })
+} 
+
 
 async function getLabels(client, owner, repo, prNumber) {
   return await client.rest.issues.listLabelsOnIssue({
