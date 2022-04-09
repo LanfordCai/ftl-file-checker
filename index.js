@@ -39,25 +39,27 @@ async function run() {
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
 
     if (labels.some((label) => { return label.name == "NewToken" })) {
-      core.info(`checkNewToken`)
+      core.info(`[NewToken] start checking files`)
       validateFiles(files)
       checkNewTokenFiles(files)
-      core.info(`start validate json files`)
+      core.info(`[NewToken] start validating json files`)
       await validateJsonFiles(client, owner, repo, files, symbol)
       if (shouldValidateImages) {
+        core.info(`[NewToken] start validating images`)
         await validateImages(client, owner, repo, files)
       }
     } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
-      core.info(`checkUpdateToken`)
+      core.info(`[UpdateToken] start checking files`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
-      core.info(`start validate json files`)
+      core.info(`[UpdateToken] start validating json files`)
       await validateJsonFiles(client, owner, repo, files, symbol)
       if (shouldValidateImages) {
+        core.info(`[UpdateToken] start validating images`)
         await validateImages(client, owner, repo, files)
       }
     } else {
-      core.info(`Unrelated`)
+      core.info(`This PR is UnrelatedToToken`)
     }
 
   } catch (error) {
@@ -71,10 +73,15 @@ function checkNewTokenFiles(files) {
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
     if (file.status != "added") {
-      throw new Error("only add new file is allowed in a NewToken PR")
+      throw new Error("only adding new files is allowed in a NewToken PR")
     }
     const [,, filename] = file.filename.split("/") 
     if (!VALID_FILES.includes(filename)) {
+      core.info(`contains invalid file: ${file.filename}`)
+      core.info(`valid files are:`)
+      VALID_FILES.forEach((filename) => {
+        core.info(`\u001b[38;2;255;0;0m${filename}`) 
+      })
       throw new Error("contains invalid file")
     }
     if (filename == "logo.png") {
@@ -86,7 +93,7 @@ function checkNewTokenFiles(files) {
   }
 
   if (!(hasLogo && hasTokenJson)) {
-    throw new Error("logo.png and token.json is required")
+    throw new Error("logo.png and token.json are required for NewToken PR")
   }
 }
 
@@ -95,10 +102,15 @@ function checkUpdateTokenFiles(files) {
     const file = files[i]
     const [,, filename] = file.filename.split("/") 
     if (!VALID_FILES.includes(filename)) {
+      core.info(`contains invalid file: ${file.filename}`)
+      core.info(`valid files are:`)
+      VALID_FILES.forEach((filename) => {
+        core.info(`\u001b[38;2;255;0;0m${filename}`) 
+      })
       throw new Error("contains invalid file")
     } 
     if (file.status == "added" && (filename == "logo.png" || filename == "token.json")) {
-      throw new Error("seems add new token rather than update token")
+      throw new Error("this seems like a NewToken PR rather than an UpdateToken PR")
     }
   }
 }
@@ -114,16 +126,16 @@ function validateFiles(files) {
       throw new Error(`token symbol should be uppercased, but it is ${tokenSymbol}`)
     }
     if (registryDir != REGISTRY_DIR) { 
-      throw new Error(`changes happened out of ${REGISTRY_DIR}`) 
+      throw new Error(`modifications are only allowed within ${REGISTRY_DIR}`) 
     }
     if (tokenSymbol.trim() == "") { 
-      throw new Error(`invalid tokenSymbol ${tokenSymbol}`) 
+      throw new Error(`invalid token symbol: ${tokenSymbol}`) 
     }
     if (!symbol) {
       symbol = tokenSymbol
     }
     if (symbol != tokenSymbol) {
-      throw new Error(`more than one token changed! ${symbol} && ${tokenSymbol}`)
+      throw new Error(`more than one token changed: ${symbol} && ${tokenSymbol}`)
     }
   }
 }
@@ -147,13 +159,12 @@ async function validateImages(client, owner, repo, files) {
       continue
     }
   
-    core.info(`fetch image ${file.filename}`)
     const resp = await getFileContent(client, owner, repo, file, "json")
     if (resp.status != 200) {
-      throw new Error("fetch image failed")
+      throw new Error(`fetch image failed: ${file.filename}`)
     }
     if (resp.data.size > imageMaxSize) {
-      const msg = `The size of ${file.filename} is ${resp.data.size} bytes, exceed the max size ${imageMaxSize} bytes`
+      const msg = `The size of ${file.filename} is ${resp.data.size} bytes, exceeding the max size(${imageMaxSize} bytes)`
       core.info(`\u001b[38;2;255;0;0m${msg}`)
       throw new Error(msg)
     }
@@ -161,7 +172,7 @@ async function validateImages(client, owner, repo, files) {
 }
 
 async function validateJsonFiles(client, owner, repo, files, symbol) {
-  const resp = await fetchJsonSchema(client, owner, repo)
+  const resp = await getJsonSchema(client, owner, repo)
   if (resp.status != 200) {
     throw new Error("fetch json schema failed")
   }
@@ -173,15 +184,14 @@ async function validateJsonFiles(client, owner, repo, files, symbol) {
       continue
     }
   
-    core.info(`fetch file ${file.filename}`)
     const resp = await getFileContent(client, owner, repo, file, "raw")
     if (resp.status != 200) {
-      throw new Error("fetch json file failed")
+      throw new Error(`fetch json file failed: ${file.filename}`)
     }
 
     const data = JSON.parse(resp.data)
     if (data.symbol != symbol) {
-      throw new Error(`symbols in path and ${file.filename} are mismatch`)
+      throw new Error(`symbols in path and ${file.filename} are mismatched`)
     }
 
     const validate = ajv.compile(schema)
@@ -193,14 +203,14 @@ async function validateJsonFiles(client, owner, repo, files, symbol) {
         core.info(`\u001b[38;2;255;0;0m${err.message}`)
       })
       core.info(`--------------------------------------------------------`)
-      throw new Error("detect invalid json file")
+      throw new Error("invalid json file detected")
     }
   }
 }
 
-async function fetchJsonSchema(client, owner, repo) {
+async function getJsonSchema(client, owner, repo) {
   const contentPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
-  console.log(`content path ${contentPath}`)
+  console.log(`token json schema path: ${contentPath}`)
 
   return await client.rest.repos.getContent({
     mediaType: {
