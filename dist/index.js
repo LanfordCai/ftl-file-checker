@@ -15889,7 +15889,7 @@ async function pullFiles(client, owner, repo, prNumber) {
 
 async function validateImages(client, owner, repo, files) {
   const imageMaxSize = core.getInput("IMAGE_MAX_SIZE") 
-  console.log(`content path ${contentPath}`) 
+  console.log(`image max size is ${imageMaxSize}`) 
 
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
