@@ -5,6 +5,14 @@ inputs:
     description: 'json schema of token.json'
     required: true
     default: 'src/schemas/token.schema.json'
+  VALIDATE_IMAGES:
+    description: 'validate image size or not'
+    required: true
+    default: true
+  IMAGE_MAX_SIZE:
+    description: 'allowed max image size'
+    required: true
+    default: 100
 runs:
   using: 'node16'
   main: 'dist/index.js'

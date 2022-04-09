@@ -41,18 +41,26 @@ async function run() {
     }
     const files = filesResp.data
 
+    const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
+
     if (labels.some((label) => { return label.name == "NewToken" })) {
       core.info(`checkNewToken`)
       validateFiles(files)
       checkNewTokenFiles(files)
       core.info(`start validate json files`)
       validateJsonFiles(client, owner, repo, files, symbol)
+      if (shouldValidateImages) {
+        validateImages(client, owner, repo, files)
+      }
     } else if (labels.some((label) => { return label.name == "UpdateToken" })) {
       core.info(`checkUpdateToken`)
       validateFiles(files)
       checkUpdateTokenFiles(files)
       core.info(`start validate json files`)
       validateJsonFiles(client, owner, repo, files, symbol)
+      if (shouldValidateImages) {
+        validateImages(client, owner, repo, files)
+      }
     } else {
       core.info(`Unrelated`)
     }
@@ -133,6 +141,30 @@ async function pullFiles(client, owner, repo, prNumber) {
   })
 }
 
+async function validateImages(client, owner, repo, files) {
+  const imageMaxSize = core.getInput("IMAGE_MAX_SIZE") 
+  console.log(`content path ${contentPath}`) 
+
+  for (var i = 0; i < files.length; i++) {
+    const file = files[i]
+    const ext = path.extname(file.filename)
+    if (ext != ".png" && ext != ".svg") {
+      continue
+    }
+  
+    core.info(`fetch image ${file.filename}`)
+    const resp = await getFileContent(client, owner, repo, file, "json")
+    if (resp.status != 200) {
+      throw new Error("fetch image failed")
+    }
+    if (resp.data.size > imageMaxSize) {
+      const msg = `The size of ${file.filename} is ${resp.data.size}, exceed the max size ${imageMaxSize}`
+      core.info(`\u001b[38;2;255;0;0m${msg}`)
+      throw new Error(msg)
+    }
+  } 
+}
+
 async function validateJsonFiles(client, owner, repo, files, symbol) {
   const resp = await fetchJsonSchema(client, owner, repo)
   if (resp.status != 200) {
@@ -147,7 +179,7 @@ async function validateJsonFiles(client, owner, repo, files, symbol) {
     }
   
     core.info(`fetch file ${file.filename}`)
-    const resp = await fetchJsonFile(client, owner, repo, file)
+    const resp = await getFileContent(client, owner, repo, file, "raw")
     if (resp.status != 200) {
       throw new Error("fetch json file failed")
     }
@@ -185,19 +217,18 @@ async function fetchJsonSchema(client, owner, repo) {
   })
 }
 
-async function fetchJsonFile(client, owner, repo, file) {
+async function getFileContent(client, owner, repo, file, format) {
   const [p, ref] = file.contents_url.split("ref=")
   return await client.rest.repos.getContent({
     mediaType: {
-      format: ["raw"],
+      format: [format],
     },
     owner: owner, 
     repo: repo,
     path: file.filename,
     ref: ref
   })
-} 
-
+}
 
 async function getLabels(client, owner, repo, prNumber) {
   return await client.rest.issues.listLabelsOnIssue({
