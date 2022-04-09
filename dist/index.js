@@ -15880,14 +15880,12 @@ async function pullFiles(client, owner, repo, prNumber) {
 }
 
 async function validateJsonFiles(client, owner, repo, files) {
-  core.info("fetch json schema")
   const resp = await fetchJsonSchema(client, owner, repo)
   if (resp.status != 200) {
     throw new Error("fetch json schema failed")
   }
   const schema = JSON.parse(resp.data)
 
-  core.info("parse files")
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
     if (path.extname(file.filename) != ".json") {
@@ -15904,9 +15902,9 @@ async function validateJsonFiles(client, owner, repo, files) {
     const validate = ajv.compile(schema)
     const valid = validate(data)
     if (!valid) {
-      core.info(`${file.filename} is invalid`)
+      core.info(`\u001b[38;2;255;0;0m${file.filename} is invalid`)
       validate.errors.forEach((err) => {
-        core.info(err.message)
+        core.info(`\u001b[38;2;255;0;0m${err.message}`)
       })
     }
   }
