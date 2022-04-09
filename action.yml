@@ -1,7 +1,7 @@
 name: 'ftl-file-checker'
 description: 'validate flow-token-list pr files'
 inputs:
-  tokenJsonSchemaPath:
+  TOKEN_JSON_SCHEMA_PATH:
     description: 'json schema of token.json'
     required: true
     default: 'src/schemas/token.schema.json'
