@@ -122,9 +122,7 @@ function validateFiles(files) {
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
     const [registryDir, tokenSymbol,] = file.filename.split("/")
-    if (tokenSymbol != tokenSymbol.toUpperCase()) {
-      throw new Error(`token symbol should be uppercased, but it is ${tokenSymbol}`)
-    }
+
     if (registryDir != REGISTRY_DIR) { 
       throw new Error(`modifications are only allowed within ${REGISTRY_DIR}`) 
     }
