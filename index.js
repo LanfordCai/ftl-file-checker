@@ -34,7 +34,7 @@ async function run() {
     if (filesResp.status != 200) {
       throw new Error("pull files failed")
     }
-    const files = filesResp.data
+    const files = filesResp.data.filter((file) => { return file.status != "deleted"} )
 
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
 
