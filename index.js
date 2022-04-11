@@ -26,7 +26,7 @@ async function run() {
     core.info(ref)
     const client = getOctokit() 
 
-    const result = await getTokenDirectory(client, owner, repo, ref)
+    const result = await getTokenDirectory(client, owner, repo, "TT", ref)
     core.info(result.data)
 
   } catch (e) {
