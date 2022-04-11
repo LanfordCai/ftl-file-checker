@@ -15879,7 +15879,7 @@ async function validateJsonFiles(files) {
 async function validateSingleJsonFile(file, schema)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
-  const uuid = `${json.address}.${json.contractName}`
+  const uuid = `A.${json.address}.${json.contractName}`
   core.info(uuid)
   core.info(tokenUUID)
   if (tokenUUID != uuid) {
@@ -15915,9 +15915,9 @@ async function validateUniqueness(filename, json) {
     throw new Error("token name duplicated")
   }
 
-  const uuids = tokenlist.tokens.map((token) => `${token.address}.${token.contractName}`)
-  if (uuids.includes(`${json.address}.${json.contractName}`)) {
-    throw new Error("{tokenAdress}.{tokenContractName} duplicated")
+  const uuids = tokenlist.tokens.map((token) => `A.${token.address}.${token.contractName}`)
+  if (uuids.includes(`A.${json.address}.${json.contractName}`)) {
+    throw new Error("A.{tokenAdress}.{tokenContractName} duplicated")
   }
   core.info(`${filename} isn't existed yet`)
 }
