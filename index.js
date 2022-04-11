@@ -46,7 +46,8 @@ async function run() {
     const files = (await getPRFiles())
       .filter((file) => { return file.status != "removed"} )
       
-    basicValidationToFiles(files)
+    validateChangedFiles(files)
+    await validateDirectory()
 
     core.info("start validating json files")
     await validateJsonFiles(files)
@@ -60,7 +61,7 @@ async function run() {
   }
 }
 
-function basicValidationToFiles(files) {
+function validateChangedFiles(files) {
   if (files.length > 5 || files.length == 0) { 
     throw new Error("invalid files count") 
   }
@@ -86,6 +87,34 @@ function basicValidationToFiles(files) {
   tokenUUID = tokenUUIDs[0]
 }
 
+async function validateDirectory() {
+  const files = await getTokenDirectory(tokenUUID)
+  let hasLogo = false
+  let hasTokenJson = false
+  for (var i = 0; i < files.length; i++) {
+    const file = files[i]
+    if (!VALID_FILES.includes(file.name)) {
+      core.info(`contains invalid file: ${file.filename}`)
+      core.info(`valid files are:`)
+      VALID_FILES.forEach((filename) => {
+        core.info(`\u001b[38;2;255;0;0m${filename}`) 
+      })
+      throw new Error("contains invalid file")
+    }
+
+    if (filename == "logo.png") {
+      hasLogo = true
+    }
+    if (filename == "token.json") {
+      hasTokenJson = true
+    }
+  }
+
+  if (!(hasLogo && hasTokenJson)) {
+    throw new Error("logo.png and token.json are required")
+  }
+}
+
 async function validateJsonFiles(files) {
   const schemaPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
   console.log(`token json schema path: ${schemaPath}`)
@@ -97,11 +126,11 @@ async function validateJsonFiles(files) {
       continue
     }
   
-    await validateFileAgainstSchema(file, schema)
+    await validateSingleJsonFile(file, schema)
   }
 }
 
-async function validateFileAgainstSchema(file, schema)  {
+async function validateSingleJsonFile(file, schema)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
   // const uuid = `${json.address}.${json.contractName}`
@@ -125,6 +154,26 @@ async function validateFileAgainstSchema(file, schema)  {
     throw new Error("invalid json file detected")
   }
   core.info(`${file.filename} is valid`)
+
+  await validateUniqueness(file.filename, json)
+}
+
+async function validateUniqueness(filename, json) {
+  let tokenlistPath = "src/tokens/flow-mainnet.tokenlist.json" 
+  if (filename == "testnet.token.json") {
+    tokenlistPath = "src/tokens/flow-testnet.tokenlist.json" 
+  }
+
+  const tokenlist = JSON.parse(await getFileContent(tokenlistPath, "raw", "main"))
+  const names = tokenlist.tokens.map((token) => token.name)
+  if (names.includes(json.name)) {
+    throw new Error("token name duplicated")
+  }
+
+  const uuids = tokenlist.tokens.map((token) => `${token.address}.${token.contractName}`)
+  if (uuids.includes(`${json.address}.${json.contractName}`)) {
+    throw new Error("{tokenAdress}.{tokenContractName} duplicated")
+  }
 }
 
 async function validateImages(files) {
