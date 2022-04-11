@@ -29,9 +29,9 @@ async function run() {
     repo = github.context.repo.repo
     prNumber = github.context.payload.pull_request.number
     client = getOctokit()
+    ref = core.getInput("BRANCH_NAME")
 
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
-    const ref = core.getInput("BRANCH_NAME")
 
     const labels = await getLabels()
     const withNewTokenLabel = labels.some((label) => label.name == "NewToken")
