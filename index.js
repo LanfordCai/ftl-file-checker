@@ -133,8 +133,7 @@ async function validateJsonFiles(files) {
 async function validateSingleJsonFile(file, schema)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
-  // const uuid = `${json.address}.${json.contractName}`
-  const uuid = json.symbol
+  const uuid = `${json.address}.${json.contractName}`
   core.info(uuid)
   core.info(tokenUUID)
   if (tokenUUID != uuid) {
