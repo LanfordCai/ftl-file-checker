@@ -15775,7 +15775,8 @@ async function run() {
     repo = github.context.repo.repo
     prNumber = github.context.payload.pull_request.number
     client = getOctokit()
-    ref = core.getInput("BRANCH_NAME")
+    ref = core.getInput("REF")
+    console.log(ref)
 
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
 
