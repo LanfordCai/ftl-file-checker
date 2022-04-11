@@ -28,7 +28,7 @@ async function run() {
 
     const result = await getTokenDirectory(client, owner, repo, "TT", ref)
     for (var i = 0; i < result.data.length; i++) {
-      core.info(result.data[i])
+      core.info(JSON.stringify(result.data[i]))
     }
 
   } catch (e) {
