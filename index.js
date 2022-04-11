@@ -94,7 +94,7 @@ async function validateDirectory() {
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
     if (!VALID_FILES.includes(file.name)) {
-      core.info(`contains invalid file: ${file.filename}`)
+      core.info(`contains invalid file: ${file.name}`)
       core.info(`valid files are:`)
       VALID_FILES.forEach((filename) => {
         core.info(`\u001b[38;2;255;0;0m${filename}`) 
