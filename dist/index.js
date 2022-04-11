@@ -15912,13 +15912,11 @@ async function validateUniqueness(filename, json) {
 
   const tokenlist = JSON.parse(await getFileContent(tokenlistPath, "raw", "main"))
   const names = tokenlist.tokens.map((token) => token.name)
-  names.forEach((name) => core.info(name))
   if (names.includes(json.name)) {
     throw new Error("token name duplicated")
   }
 
   const uuids = tokenlist.tokens.map((token) => `${token.address}.${token.contractName}`)
-  uuids.forEach((uuid) => core.info(uuid))
   if (uuids.includes(`${json.address}.${json.contractName}`)) {
     throw new Error("{tokenAdress}.{tokenContractName} duplicated")
   }
