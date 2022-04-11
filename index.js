@@ -34,7 +34,7 @@ async function run() {
     if (filesResp.status != 200) {
       throw new Error("pull files failed")
     }
-    const files = filesResp.data
+    const files = filesResp.data.filter((file) => { return file.status != "removed"} )
 
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
 
@@ -122,7 +122,6 @@ function validateFiles(files) {
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
     const [registryDir, tokenSymbol,] = file.filename.split("/")
-
     if (registryDir != REGISTRY_DIR) { 
       throw new Error(`modifications are only allowed within ${REGISTRY_DIR}`) 
     }
