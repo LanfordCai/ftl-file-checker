@@ -22,11 +22,13 @@ async function run() {
     const owner = github.context.repo.owner
     const repo = github.context.repo.repo
     const prNumber = github.context.payload.pull_request.number
-    core.info(github)
-    core.info(core.getInput("REF"))
+    const ref = branchcore.getInput("REF")
+    core.info(ref)
     const client = getOctokit() 
 
-    // const result = await getTokenDirectory(client, owner, repo, "")
+    const result = await getTokenDirectory(client, owner, repo, ref)
+    core.info(result.data)
+
   } catch (e) {
     core.error(e)
   }
