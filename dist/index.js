@@ -15847,7 +15847,7 @@ async function validateJsonFiles(files) {
   }
 }
 
-async function validateFileAgainstSchema(file)  {
+async function validateFileAgainstSchema(file, schema)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
   // const uuid = `${json.address}.${json.contractName}`
