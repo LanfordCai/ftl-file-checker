@@ -25,10 +25,11 @@ run()
 
 async function run() {
   try {
-    const owner = github.context.repo.owner
-    const repo = github.context.repo.repo
-    const prNumber = github.context.payload.pull_request.number
-    const client = getOctokit()
+    owner = github.context.repo.owner
+    repo = github.context.repo.repo
+    prNumber = github.context.payload.pull_request.number
+    client = getOctokit()
+
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
 
     const labels = await getLabels()
@@ -65,7 +66,7 @@ function basicValidationToFiles(files) {
   let registryDirs = []
   let tokenUUIDs = []
   for (var i = 0; i < files.length; i++) {
-    const [registryDir, tokenUUID,] = files[0].filename.split("/")
+    const [registryDir, tokenUUID,] = files[i].filename.split("/")
     registryDirs.push(registryDir)
     tokenUUIDs.push(tokenUUID)
   }
