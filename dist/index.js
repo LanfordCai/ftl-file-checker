@@ -15769,7 +15769,7 @@ async function run() {
     const repo = github.context.repo.repo
     const prNumber = github.context.payload.pull_request.number
     core.info(github)
-    core.info(env.BRANCH_NAME)
+    core.info(core.getInput("REF"))
     const client = getOctokit() 
 
     // const result = await getTokenDirectory(client, owner, repo, "")
