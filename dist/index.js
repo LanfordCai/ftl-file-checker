@@ -15998,7 +15998,7 @@ async function getFileContent(client, owner, repo, file, format) {
 async function getTokenDirectory(client, owner, repo, tokenSymbol, ref) {
   return await client.rest.repos.getContent({
     mediaType: {
-      format: [raw],
+      format: ["raw"],
     },
     owner: owner, 
     repo: repo,
