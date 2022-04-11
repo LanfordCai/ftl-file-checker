@@ -102,10 +102,10 @@ async function validateDirectory() {
       throw new Error("contains invalid file")
     }
 
-    if (filename == "logo.png") {
+    if (file.name == "logo.png") {
       hasLogo = true
     }
-    if (filename == "token.json") {
+    if (file.name == "token.json") {
       hasTokenJson = true
     }
   }
