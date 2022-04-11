@@ -22,6 +22,21 @@ async function run() {
     const owner = github.context.repo.owner
     const repo = github.context.repo.repo
     const prNumber = github.context.payload.pull_request.number
+    core.info(github)
+    core.info(env.BRANCH_NAME)
+    const client = getOctokit() 
+
+    // const result = await getTokenDirectory(client, owner, repo, "")
+  } catch (e) {
+    core.error(e)
+  }
+}
+
+async function run2() {
+  try {
+    const owner = github.context.repo.owner
+    const repo = github.context.repo.repo
+    const prNumber = github.context.payload.pull_request.number
     const client = getOctokit()
 
     const labelsResp = await getLabels(client, owner, repo, prNumber)
@@ -228,6 +243,18 @@ async function getFileContent(client, owner, repo, file, format) {
     owner: owner, 
     repo: repo,
     path: file.filename,
+    ref: ref
+  })
+}
+
+async function getTokenDirectory(client, owner, repo, tokenSymbol, ref) {
+  return await client.rest.repos.getContent({
+    mediaType: {
+      format: [raw],
+    },
+    owner: owner, 
+    repo: repo,
+    path: `${REGISTRY_DIR}/${tokenSymbol}`,
     ref: ref
   })
 }
