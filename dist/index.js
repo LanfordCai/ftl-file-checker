@@ -15768,7 +15768,7 @@ async function run() {
     const owner = github.context.repo.owner
     const repo = github.context.repo.repo
     const prNumber = github.context.payload.pull_request.number
-    const ref = branchcore.getInput("REF")
+    const ref = core.getInput("REF")
     core.info(ref)
     const client = getOctokit() 
 
