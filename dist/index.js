@@ -15858,6 +15858,7 @@ async function validateFileAgainstSchema(file, schema)  {
     throw new Error("UUIDs in path and token.json are mismatch")
   }
 
+  core.info(`validating ${file.filename}`)
   const validate = ajv.compile(schema)
   const valid = validate(json)
   if (!valid) {
@@ -15869,11 +15870,12 @@ async function validateFileAgainstSchema(file, schema)  {
     core.info(`--------------------------------------------------------`)
     throw new Error("invalid json file detected")
   }
+  core.info(`${file.filename} is valid`)
 }
 
 async function validateImages(files) {
   const imageMaxSize = core.getInput("IMAGE_MAX_SIZE") 
-  console.log(`image max size is ${imageMaxSize}`) 
+  core.info(`image max size is ${imageMaxSize}`) 
 
   for (var i = 0; i < files.length; i++) {
     const file = files[i]
@@ -15883,11 +15885,13 @@ async function validateImages(files) {
     }
   
     const data = await getFileContent(file.filename, "json", ref)
+    core.info(`validating ${file.filename}`)
     if (data.size > imageMaxSize) {
       const msg = `The size of ${file.filename} is ${data.size} bytes, exceeding the max size(${imageMaxSize} bytes)`
       core.info(`\u001b[38;2;255;0;0m${msg}`)
       throw new Error(msg)
     }
+    core.info(`${file.filename} is valid`)
   } 
 }
 
