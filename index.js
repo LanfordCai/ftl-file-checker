@@ -148,7 +148,7 @@ async function getFileContent(path, format, ref) {
     },
     owner: owner, 
     repo: repo,
-    path: file.filename,
+    path: path,
     ref: ref
   })
 
