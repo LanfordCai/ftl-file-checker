@@ -106,6 +106,8 @@ async function validateFileAgainstSchema(file)  {
 
   // const uuid = `${json.address}.${json.contractName}`
   const uuid = json.symbol
+  core.info(uuid)
+  core.info(tokenUUID)
   if (tokenUUID != uuid) {
     throw new Error("UUIDs in path and token.json are mismatch")
   }
