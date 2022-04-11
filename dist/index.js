@@ -15777,6 +15777,7 @@ async function run() {
     client = getOctokit()
 
     const shouldValidateImages = core.getInput("VALIDATE_IMAGES")
+    const ref = core.getInput("BRANCH_NAME")
 
     const labels = await getLabels()
     const withNewTokenLabel = labels.some((label) => label.name == "NewToken")
