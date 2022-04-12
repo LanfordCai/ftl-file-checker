@@ -15880,8 +15880,6 @@ async function validateSingleJsonFile(file, schema, isNewToken)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
   const uuid = `A.${json.address}.${json.contractName}`
-  core.info(uuid)
-  core.info(tokenUUID)
   if (tokenUUID != uuid) {
     throw new Error("UUIDs in path and token.json are mismatch")
   }
