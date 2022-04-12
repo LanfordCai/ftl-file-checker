@@ -15785,7 +15785,7 @@ async function run() {
     const withUpdateTokenLabel = labels.some((label) => label.name == "UpdateToken")
 
     if (!withNewTokenLabel && !withUpdateTokenLabel) {
-      core.info(`This PR is UnrelatedToToken`)
+      core.info(`This PR is unrelated to token`)
       return
     }
 
