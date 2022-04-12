@@ -50,7 +50,7 @@ async function run() {
     await validateDirectory()
 
     core.info("start validating json files")
-    await validateJsonFiles(files)
+    await validateJsonFiles(files, withNewTokenLabel)
 
     if (shouldValidateImages) {
       core.info("start validating images")
@@ -115,7 +115,7 @@ async function validateDirectory() {
   }
 }
 
-async function validateJsonFiles(files) {
+async function validateJsonFiles(files, isNewToken) {
   const schemaPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
   console.log(`token json schema path: ${schemaPath}`)
   
@@ -126,17 +126,14 @@ async function validateJsonFiles(files) {
       continue
     }
   
-    await validateSingleJsonFile(file, schema)
+    await validateSingleJsonFile(file, schema, isNewToken)
   }
 }
 
-async function validateSingleJsonFile(file, schema)  {
+async function validateSingleJsonFile(file, schema, isNewToken)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
-  // const uuid = `${json.address}.${json.contractName}`
-  const uuid = json.symbol
-  core.info(uuid)
-  core.info(tokenUUID)
+  const uuid = `A.${json.address}.${json.contractName}`
   if (tokenUUID != uuid) {
     throw new Error("UUIDs in path and token.json are mismatch")
   }
@@ -155,6 +152,11 @@ async function validateSingleJsonFile(file, schema)  {
   }
   core.info(`${file.filename} is valid`)
 
+  if (isNewToken) {
+    await validateUniqueness(file.filename, json)
+  }
+  core.info(`${file.filename} is valid`)
+
   await validateUniqueness(file.filename, json)
 }
 
@@ -170,9 +172,9 @@ async function validateUniqueness(filename, json) {
     throw new Error("token name duplicated")
   }
 
-  const uuids = tokenlist.tokens.map((token) => `${token.address}.${token.contractName}`)
-  if (uuids.includes(`${json.address}.${json.contractName}`)) {
-    throw new Error("{tokenAdress}.{tokenContractName} duplicated")
+  const uuids = tokenlist.tokens.map((token) => `A.${token.address}.${token.contractName}`)
+  if (uuids.includes(`A.${json.address}.${json.contractName}`)) {
+    throw new Error("A.{tokenAdress}.{tokenContractName} duplicated")
   }
   core.info(`${filename} isn't existed yet`)
 }
