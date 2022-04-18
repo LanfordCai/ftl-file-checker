@@ -15878,8 +15878,8 @@ async function validateJsonFiles(files, isNewToken) {
 
 async function validateSingleJsonFile(file, schema, isNewToken)  {
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
-
-  const uuid = `A.${json.address}.${json.contractName}`
+  const address = json.address.replace("0x", "")
+  const uuid = `A.${address}.${json.contractName}`
   if (tokenUUID != uuid) {
     throw new Error("UUIDs in path and token.json are mismatch")
   }
@@ -15915,8 +15915,13 @@ async function validateUniqueness(filename, json) {
     throw new Error("token name duplicated")
   }
 
-  const uuids = tokenlist.tokens.map((token) => `A.${token.address}.${token.contractName}`)
-  if (uuids.includes(`A.${json.address}.${json.contractName}`)) {
+  const uuids = tokenlist.tokens.map((token) => {
+    const tokenAddress = token.address.replace("0x", "")
+    return `A.${tokenAddress}.${token.contractName}`
+  })
+
+  const jsonAddress = json.address.replace("0x", "")
+  if (uuids.includes(`A.${jsonAddress}.${json.contractName}`)) {
     throw new Error("A.{tokenAdress}.{tokenContractName} duplicated")
   }
   core.info(`${filename} isn't existed yet`)
