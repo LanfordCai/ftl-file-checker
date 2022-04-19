@@ -68,16 +68,27 @@ async function run() {
 }
 
 async function validateTemplate(file) {
-  const schemaPath = core.getInput("TOKENLIST_JSON_SCHEMA_PATH") || "src/schemas/tokenlist.schema.json"
-  console.log(`tokenlist json schema path: ${schemaPath}`)
-  const schema = JSON.parse(await getFileContent(schemaPath, "raw", "main"))
+  const tokenSchemaPath = core.getInput("TOKEN_JSON_SCHEMA_PATH") 
+  console.log(`token json schema path: ${tokenSchemaPath}`)
+  const tokenSchema = JSON.parse(await getFileContent(tokenSchemaPath, "raw", "main"))
+
+  const listSchemaPath = core.getInput("TOKENLIST_JSON_SCHEMA_PATH") || "src/schemas/tokenlist.schema.json"
+  console.log(`tokenlist json schema path: ${listSchemaPath}`)
+  const listSchema = JSON.parse(await getFileContent(listSchemaPath, "raw", "main"))
+  listSchema.properties.tokens.minItems = 0
   const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
 
   core.info(`validating ${file.filename}`)
-  const validate = ajv.compile(schema)
+  const validate = ajv.addSchema(tokenSchema).compile(listSchema)
   const valid = validate(json) 
   if (!valid) {
-    throw new Error("invalid tokenlist.template.json")
+    core.info(`--------------------------------------------------------`)
+    core.info(`\u001b[38;2;255;0;0m${file.filename} is invalid`)
+    validate.errors.forEach((err) => {
+      core.info(`\u001b[38;2;255;0;0m${err.message}`)
+    })
+    core.info(`--------------------------------------------------------`)
+    throw new Error("invalid template.tokenlist.json")
   }
 }
 
