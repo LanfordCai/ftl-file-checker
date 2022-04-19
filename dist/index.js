@@ -15785,7 +15785,13 @@ async function run() {
     const withUpdateTokenLabel = labels.some((label) => label.name == "UpdateToken")
 
     if (!withNewTokenLabel && !withUpdateTokenLabel) {
-      core.info(`This PR is unrelated to token`)
+      core.info(`This PR is unrelated to add/update token`)
+      const templatePath = core.getInput("TOKEN_TEMPLATE_PATH") || `${REGISTRY_DIR}/template.tokenlist.json`
+      const template = (await getPRFiles()).find((file) => file.filename == templatePath)
+      if (template) {
+        core.info(`This PR is modifying template.tokenlist.json`)
+        await validateTemplate(template)
+      }
       return
     }
 
@@ -15804,6 +15810,20 @@ async function run() {
     }
   } catch (error) {
     core.setFailed(error.message);
+  }
+}
+
+async function validateTemplate(file) {
+  const schemaPath = core.getInput("TOKENLIST_JSON_SCHEMA_PATH") || "src/schemas/tokenlist.schema.json"
+  console.log(`tokenlist json schema path: ${schemaPath}`)
+  const schema = JSON.parse(await getFileContent(schemaPath, "raw", "main"))
+  const json = JSON.parse(await getFileContent(file.filename, "raw", ref))
+
+  core.info(`validating ${file.filename}`)
+  const validate = ajv.compile(schema)
+  const valid = validate(json) 
+  if (!valid) {
+    throw new Error("invalid tokenlist.template.json")
   }
 }
 
