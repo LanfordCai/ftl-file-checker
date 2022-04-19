@@ -81,7 +81,7 @@ function validateChangedFiles(files) {
 
   const tokenUUIDSet = new Set(tokenUUIDs) 
   if (tokenUUIDSet.size > 1) {
-    throw new Error(`more than one token changed!`)
+    throw new Error(`modifications are only allowed within the token directory!`)
   }
   
   tokenUUID = tokenUUIDs[0]
